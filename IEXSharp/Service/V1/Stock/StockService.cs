@@ -9,6 +9,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using IEXSharp.Helper;
 using IEXSharp.Model;
 using VSLee.IEXSharp.Model.StockPrices.Response;
 using VSLee.IEXSharp.Model.StockPrices.Request;
@@ -189,7 +190,7 @@ namespace VSLee.IEXSharp.Service.V1.Stock
 
 			var pathNvc = new NameValueCollection
 			{
-				{"symbol", symbol}, {"range", range.ToString().ToLower().Replace("_", string.Empty)}
+				{"symbol", symbol}, {"range", range.GetDescription() }
 			};
 
 			return await _executor.ExecuteAsync<IEnumerable<DividendV1Response>>(urlPattern, pathNvc, qsb);
@@ -289,13 +290,13 @@ namespace VSLee.IEXSharp.Service.V1.Stock
 		public async Task<IEXResponse<IEnumerable<SectorPerformanceResponse>>> SectorPerformanceAsync() =>
 			await _executor.NoParamExecute<IEnumerable<SectorPerformanceResponse>>("stock/market/sector-performance");
 
-		public async Task<IEXResponse<IEnumerable<SplitV1Response>>> SplitAsync(string symbol, SplitRange range = SplitRange._1m)
+		public async Task<IEXResponse<IEnumerable<SplitV1Response>>> SplitAsync(string symbol, SplitRange range = SplitRange.OneMonth)
 		{
 			const string urlPattern = "stock/[symbol]/splits/[range]";
 
 			var qsb = new QueryStringBuilder();
 
-			var pathNvc = new NameValueCollection { { "symbol", symbol }, { "range", range.ToString().Replace("_", string.Empty) } };
+			var pathNvc = new NameValueCollection { { "symbol", symbol }, { "range", range.GetDescription() } };
 
 			return await _executor.ExecuteAsync<IEnumerable<SplitV1Response>>(urlPattern, pathNvc, qsb);
 		}

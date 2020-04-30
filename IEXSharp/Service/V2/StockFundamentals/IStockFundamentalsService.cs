@@ -16,31 +16,11 @@ namespace IEXSharp.Service.V2.StockFundamentals
 		/// Financial information is limited for some financial firms.
 		/// </summary>
 		/// <param name="symbol"></param>
-		/// <param name="period"></param>
-		/// <param name="last"></param>
-		/// <returns></returns>
-		Task<IEXResponse<BalanceSheetResponse>> BalanceSheetAsync(string symbol, Period period = Period.Quarter, int last = 1);
-
-		/// <summary>
-		/// <see cref="https://iexcloud.io/docs/api/#balance-sheet"/>
-		/// Only included with paid subscription plans.
-		/// Financial information is limited for some financial firms.
-		/// </summary>
-		/// <param name="symbol"></param>
-		/// <param name="period"></param>
 		/// <param name="field"></param>
-		/// <param name="last"></param>
-		/// <returns></returns>
-		Task<IEXResponse<string>> BalanceSheetFieldAsync(string symbol, string field, Period period = Period.Quarter, int last = 1);
-
-		/// <summary>
-		/// <see cref="https://iexcloud.io/docs/api/#cash-flow"/>
-		/// Only included with paid subscription plans.
-		/// </summary>
-		/// <param name="symbol"></param>
 		/// <param name="period"></param>
 		/// <param name="last"></param>
-		Task<IEXResponse<CashFlowResponse>> CashFlowAsync(string symbol, Period period = Period.Quarter, int last = 1);
+		/// <returns></returns>
+		Task<dynamic> BalanceSheetAsync(string symbol, string field, Period period = Period.Quarter, int last = 1);
 
 		/// <summary>
 		/// <see cref="https://iexcloud.io/docs/api/#cash-flow"/>
@@ -50,7 +30,7 @@ namespace IEXSharp.Service.V2.StockFundamentals
 		/// <param name="field"></param>
 		/// <param name="period"></param>
 		/// <param name="last"></param>
-		Task<IEXResponse<string>> CashFlowFieldAsync(string symbol, string field, Period period = Period.Quarter, int last = 1);
+		Task<dynamic> CashFlowAsync(string symbol, string field, Period period = Period.Quarter, int last = 1);
 
 		/// <summary>
 		/// <see cref="https://iexcloud.io/docs/api/#dividends-basic"/>
@@ -67,19 +47,10 @@ namespace IEXSharp.Service.V2.StockFundamentals
 		/// Earnings prior to last quarter are only included with paid subscription plans
 		/// </summary>
 		/// <param name="symbol"></param>
-		/// <param name="last"></param>
-		/// <returns></returns>
-		Task<IEXResponse<EarningResponse>> EarningAsync(string symbol, int last = 1);
-
-		/// <summary>
-		/// <see cref="https://iexcloud.io/docs/api/#earnings"/>
-		/// Earnings prior to last quarter are only included with paid subscription plans
-		/// </summary>
-		/// <param name="symbol"></param>
 		/// <param name="field"></param>
 		/// <param name="last"></param>
 		/// <returns></returns>
-		Task<IEXResponse<string>> EarningFieldAsync(string symbol, string field, int last = 1);
+		Task<dynamic> EarningAsync(string symbol, string field, int last = 1);
 
 		/// <summary>
 		/// <see cref="https://iexcloud.io/docs/api/#earnings-today"/>
@@ -94,30 +65,10 @@ namespace IEXSharp.Service.V2.StockFundamentals
 		/// Only included with paid subscription plans
 		/// </summary>
 		/// <param name="symbol"></param>
-		/// <param name="last"></param>
-		/// <returns></returns>
-		Task<IEXResponse<FinancialResponse>> FinancialAsync(string symbol, int last = 1);
-
-		/// <summary>
-		/// <see cref="https://iexcloud.io/docs/api/#financials"/>
-		/// Financial Firms report financials in a different format than our 3rd party processes therefore our data is limited
-		/// Only included with paid subscription plans
-		/// </summary>
-		/// <param name="symbol"></param>
 		/// <param name="field"></param>
 		/// <param name="last"></param>
 		/// <returns></returns>
-		Task<IEXResponse<string>> FinancialFieldAsync(string symbol, string field, int last = 1);
-
-		/// <summary>
-		/// <see cref="https://iexcloud.io/docs/api/#income-statement"/>
-		/// Only included with paid subscription plans
-		/// </summary>
-		/// <param name="symbol"></param>
-		/// <param name="period"></param>
-		/// <param name="last"></param>
-		/// <returns></returns>
-		Task<IEXResponse<IncomeStatementResponse>> IncomeStatementAsync(string symbol, Period period = Period.Quarter, int last = 1);
+		Task<dynamic> FinancialAsync(string symbol, string field, int last = 1);
 
 		/// <summary>
 		/// <see cref="https://iexcloud.io/docs/api/#income-statement"/>
@@ -128,7 +79,7 @@ namespace IEXSharp.Service.V2.StockFundamentals
 		/// <param name="period"></param>
 		/// <param name="last"></param>
 		/// <returns></returns>
-		Task<IEXResponse<string>> IncomeStatementFieldAsync(string symbol, string field, Period period = Period.Quarter, int last = 1);
+		Task<dynamic> IncomeStatementAsync(string symbol, string field, Period period = Period.Quarter, int last = 1);
 
 		/// <summary>
 		/// <see cref="https://iexcloud.io/docs/api/#splits"/>
@@ -137,6 +88,6 @@ namespace IEXSharp.Service.V2.StockFundamentals
 		/// <param name="symbol"></param>
 		/// <param name="range"></param>
 		/// <returns></returns>
-		Task<IEXResponse<IEnumerable<SplitResponse>>> SplitAsync(string symbol, SplitRange range = SplitRange._1m);
+		Task<IEXResponse<IEnumerable<SplitResponse>>> SplitAsync(string symbol, SplitRange range = SplitRange.OneMonth);
 	}
 }

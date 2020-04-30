@@ -143,14 +143,14 @@ namespace VSLee.IEXSharpTest.V1
 		}
 
 		[Test]
-		[TestCase("AAPL", DividendRange._1m)]
-		[TestCase("AAPL", DividendRange._1y)]
-		[TestCase("AAPL", DividendRange._2y)]
-		[TestCase("AAPL", DividendRange._3m)]
-		[TestCase("AAPL", DividendRange._5y)]
-		[TestCase("AAPL", DividendRange._6m)]
-		[TestCase("AAPL", DividendRange._next)]
-		[TestCase("AAPL", DividendRange._ytd)]
+		[TestCase("AAPL", DividendRange.OneMonth)]
+		[TestCase("AAPL", DividendRange.OneYear)]
+		[TestCase("AAPL", DividendRange.TwoYears)]
+		[TestCase("AAPL", DividendRange.ThreeMonths)]
+		[TestCase("AAPL", DividendRange.FiveYears)]
+		[TestCase("AAPL", DividendRange.SixMonths)]
+		[TestCase("AAPL", DividendRange.Next)]
+		[TestCase("AAPL", DividendRange.Ytd)]
 		public async Task DividendAsyncTest(string symbol, DividendRange range)
 		{
 			var response = await prodClient.Stock.DividendAsync(symbol, range);
@@ -379,14 +379,14 @@ namespace VSLee.IEXSharpTest.V1
 
 		[Test]
 		[Ignore("IEX V1 has now deprecated this method")]
-		[TestCase("AAPL", SplitRange._1m)]
-		[TestCase("AAPL", SplitRange._1y)]
-		[TestCase("AAPL", SplitRange._2y)]
-		[TestCase("AAPL", SplitRange._3m)]
-		[TestCase("AAPL", SplitRange._5y)]
-		[TestCase("AAPL", SplitRange._6m)]
-		[TestCase("AAPL", SplitRange._next)]
-		[TestCase("AAPL", SplitRange._ytd)]
+		[TestCase("AAPL", SplitRange.OneMonth)]
+		[TestCase("AAPL", SplitRange.OneYear)]
+		[TestCase("AAPL", SplitRange.TwoYears)]
+		[TestCase("AAPL", SplitRange.ThreeMonths)]
+		[TestCase("AAPL", SplitRange.FiveYears)]
+		[TestCase("AAPL", SplitRange.SixMonths)]
+		[TestCase("AAPL", SplitRange.Next)]
+		[TestCase("AAPL", SplitRange.Ytd)]
 		public async Task SplitAsyncTest(string symbol, SplitRange range)
 		{
 			var response = await prodClient.Stock.SplitAsync(symbol, range);

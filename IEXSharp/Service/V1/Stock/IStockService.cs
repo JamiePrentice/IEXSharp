@@ -235,7 +235,7 @@ namespace VSLee.IEXSharp.Service.V1.Stock
 		/// <param name="symbol"></param>
 		/// <param name="range"></param>
 		/// <returns></returns>
-		Task<IEXResponse<IEnumerable<SplitV1Response>>> SplitAsync(string symbol, SplitRange range = SplitRange._1m);
+		Task<IEXResponse<IEnumerable<SplitV1Response>>> SplitAsync(string symbol, SplitRange range = SplitRange.OneMonth);
 
 
 		/// <summary>
