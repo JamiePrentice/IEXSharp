@@ -1,5 +1,4 @@
 using IEXSharp.Model;
-using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,39 +9,34 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Polly;
 using Polly.Retry;
+using System.Text.Json;
 
 namespace IEXSharp.Helper
 {
 	internal class ExecutorREST : ExecutorBase
 	{
 		private readonly HttpClient client;
-		private readonly AsyncRetryPolicy<HttpResponseMessage> exponentialBackOffPolicy;
+		private readonly AsyncPolicy<HttpResponseMessage> backOffPolicy;
 
 		private readonly Signer signer;
 		private readonly bool sign;
 
-		internal readonly JsonSerializerSettings JsonSerializerSettings;
-
-		public ExecutorREST(HttpClient client, string publishableToken, string secretToken, bool sign)
+		public ExecutorREST(HttpClient client, string publishableToken, string secretToken,
+			bool sign, RetryPolicy retryPolicy)
 			: base(publishableToken: publishableToken, secretToken: secretToken)
 		{
 			this.client = client;
-			exponentialBackOffPolicy = ExponentialBackOffPolicy();
+			backOffPolicy = createBackOffPolicy(retryPolicy);
 
 			if (sign)
 			{
 				signer = new Signer(client.BaseAddress.Host, secretToken);
 			}
 			this.sign = sign;
-			JsonSerializerSettings = new JsonSerializerSettings
-			{
-				NullValueHandling = NullValueHandling.Ignore
-			};
 		}
 
 		public async Task<IEXResponse<ReturnType>> ExecuteAsync<ReturnType>(
 			string urlPattern, NameValueCollection pathNVC, QueryStringBuilder qsb, bool forceUseSecretToken = false)
-			where ReturnType : class
 		{
 			ValidateAndProcessParams(ref urlPattern, ref pathNVC, ref qsb);
 
@@ -56,8 +50,6 @@ namespace IEXSharp.Helper
 				qsb.Add("token", secretToken);
 			}
 
-			var content = string.Empty;
-
 			if (sign)
 			{
 				client.DefaultRequestHeaders.Remove("x-iex-date");
@@ -68,8 +60,9 @@ namespace IEXSharp.Helper
 				client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", headers.authorization_header);
 			}
 
-			using (var responseContent = await exponentialBackOffPolicy.ExecuteAsync(() => client.GetAsync($"{urlPattern}{qsb.Build()}")))
+			using (var responseContent = await backOffPolicy.ExecuteAsync(() => client.GetAsync($"{urlPattern}{qsb.Build()}")))
 			{
+				var content = string.Empty;
 				try
 				{
 					content = await responseContent.Content.ReadAsStringAsync();
@@ -97,7 +90,7 @@ namespace IEXSharp.Helper
 						}
 						return new IEXResponse<ReturnType>()
 						{
-							Data = JsonConvert.DeserializeObject<ReturnType>(content, JsonSerializerSettings)
+							Data = JsonSerializer.Deserialize<ReturnType>(content, JsonSerializerOptions)
 						};
 					}
 					else
@@ -121,7 +114,6 @@ namespace IEXSharp.Helper
 		}
 
 		public async Task<IEXResponse<ReturnType>> SymbolExecuteAsync<ReturnType>(string urlPattern, string symbol)
-			where ReturnType : class
 		{
 			var qsb = new QueryStringBuilder();
 			var pathNvc = new NameValueCollection { { "symbol", symbol } };
@@ -158,24 +150,50 @@ namespace IEXSharp.Helper
 		}
 
 		/// <summary>
-		/// Creates an 'Exponential BackOff' strategy that helps with TooManyRequests faults (Http Code = 429) when communicating
-		/// with the IEXCloud Service.
+		/// Creates a retry backOff strategy that helps with TooManyRequests faults (Http Code = 429)
+		/// when communicating with the IEXCloud Service.
 		/// </summary>
 		/// <returns></returns>
-		private static AsyncRetryPolicy<HttpResponseMessage> ExponentialBackOffPolicy()
+		private static AsyncPolicy<HttpResponseMessage> createBackOffPolicy(RetryPolicy retryPolicy)
 		{
 			var random = new Random();
-
-			// Define our waitAndRetry policy: retry n times with an exponential back-off in case the IEXCloud API throttles us for too many requests.
-			var waitAndRetryPolicy = Policy
-				.HandleResult<HttpResponseMessage>(e => e.StatusCode == HttpStatusCode.ServiceUnavailable ||
-				                                        e.StatusCode == (System.Net.HttpStatusCode) 429)
-				.WaitAndRetryAsync(10, // Retry 10 times with a delay between retries before ultimately giving up
-					attempt => TimeSpan.FromMilliseconds(250 * Math.Pow(2, attempt) * (1 + random.NextDouble())), // Use Exponential Back off with some randomness to better distribute calls
-					(exception, calculatedWaitDuration) => { Debug.WriteLine($"IEXCloud API is throttling our requests. Automatically delaying for {calculatedWaitDuration.TotalMilliseconds}ms"); }
-				);
-
-			return waitAndRetryPolicy;
+			switch (retryPolicy)
+			{
+				case RetryPolicy.NoWait:
+					// Define our waitAndRetry policy: retry n times with an exponential back-off in case the IEXCloud API throttles us for too many requests.
+					return Policy
+						.HandleResult<HttpResponseMessage>(e => e.StatusCode == HttpStatusCode.ServiceUnavailable ||
+																e.StatusCode == (System.Net.HttpStatusCode)429)
+						.WaitAndRetryAsync(10, // Retry 10 times with a delay between retries before ultimately giving up
+							attempt => new TimeSpan(), // Don't wait at all
+							(exception, calculatedWaitDuration) =>
+								Debug.WriteLine($"IEXCloud API is throttling our requests. Automatically delaying for {calculatedWaitDuration.TotalMilliseconds}ms")
+						);
+				case RetryPolicy.Manual:
+					return Policy.NoOpAsync<HttpResponseMessage>();
+				case RetryPolicy.Linear:
+					// Define our waitAndRetry policy: retry n times with an exponential back-off in case the IEXCloud API throttles us for too many requests.
+					return Policy
+						.HandleResult<HttpResponseMessage>(e => e.StatusCode == HttpStatusCode.ServiceUnavailable ||
+																e.StatusCode == (System.Net.HttpStatusCode)429)
+						.WaitAndRetryAsync(10, // Retry 10 times with a delay between retries before ultimately giving up
+							attempt => TimeSpan.FromMilliseconds(250 * attempt * (1 + random.NextDouble())), // Use Linear Back off with some randomness to better distribute calls
+							(exception, calculatedWaitDuration) =>
+								Debug.WriteLine($"IEXCloud API is throttling our requests. Automatically delaying for {calculatedWaitDuration.TotalMilliseconds}ms")
+						);
+				case RetryPolicy.Exponential:
+					// Define our waitAndRetry policy: retry n times with an exponential back-off in case the IEXCloud API throttles us for too many requests.
+					return Policy
+						.HandleResult<HttpResponseMessage>(e => e.StatusCode == HttpStatusCode.ServiceUnavailable ||
+																e.StatusCode == (System.Net.HttpStatusCode)429)
+						.WaitAndRetryAsync(10, // Retry 10 times with a delay between retries before ultimately giving up
+							attempt => TimeSpan.FromMilliseconds(250 * Math.Pow(2, attempt) * (1 + random.NextDouble())), // Use Exponential Back off with some randomness to better distribute calls
+							(exception, calculatedWaitDuration) =>
+								Debug.WriteLine($"IEXCloud API is throttling our requests. Automatically delaying for {calculatedWaitDuration.TotalMilliseconds}ms")
+						);
+				default:
+					throw new Exception($"Unexpected retryPolicy {retryPolicy}");
+			}
 		}
 	}
 }

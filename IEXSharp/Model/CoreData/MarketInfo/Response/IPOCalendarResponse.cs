@@ -32,13 +32,13 @@ namespace IEXSharp.Model.CoreData.MarketInfo.Response
 		public string url { get; set; }
 		public string status { get; set; }
 		public long sharesOffered { get; set; }
-		public decimal priceLow { get; set; }
-		public decimal priceHigh { get; set; }
-		public long offerAmount { get; set; }
-		public long totalExpenses { get; set; }
-		public long sharesOverAlloted { get; set; }
-		public long shareholderShares { get; set; }
-		public long sharesOutstanding { get; set; }
+		public decimal? priceLow { get; set; }
+		public decimal? priceHigh { get; set; }
+		public long? offerAmount { get; set; }
+		public decimal totalExpenses { get; set; }
+		public long? sharesOverAlloted { get; set; }
+		public long? shareholderShares { get; set; }
+		public long? sharesOutstanding { get; set; }
 		public string lockupPeriodExpiration { get; set; }
 		public string quietPeriodExpiration { get; set; }
 		public long revenue { get; set; }
@@ -58,8 +58,8 @@ namespace IEXSharp.Model.CoreData.MarketInfo.Response
 	{
 		public class Quote
 		{
-			public float latestPrice { get; set; }
-			public float changePercent { get; set; }
+			public float? latestPrice { get; set; }
+			public float? changePercent { get; set; }
 		}
 
 		public string Company { get; set; }
@@ -71,6 +71,6 @@ namespace IEXSharp.Model.CoreData.MarketInfo.Response
 		public string Percent { get; set; }
 		public string Market { get; set; }
 		public string Expected { get; set; }
-		public ViewData.Quote quote { get; set; }
+		public Quote quote { get; set; }
 	}
 }

@@ -17,6 +17,8 @@ namespace IEXSharpTest.Cloud.CoreData
 		}
 
 		[Test]
+		[TestCase("AACG")]
+		[TestCase("AACQ")]
 		[TestCase("AAPL")]
 		[TestCase("FB")]
 		public async Task AdvancedStatsAsyncTest(string symbol)
@@ -40,7 +42,7 @@ namespace IEXSharpTest.Cloud.CoreData
 			Assert.IsNull(response.ErrorMessage);
 			Assert.IsNotNull(response.Data);
 
-			Assert.NotNull(response.Data.FirstOrDefault()?.consensusEndDate);
+			Assert.NotNull(response.Data.FirstOrDefault()?.ratingBuy);
 			Assert.NotNull(response.Data.FirstOrDefault()?.consensusStartDate);
 		}
 
@@ -97,6 +99,8 @@ namespace IEXSharpTest.Cloud.CoreData
 		}
 
 		[Test]
+		[TestCase("AACG")]
+		[TestCase("AACQ")]
 		[TestCase("AAPL")]
 		[TestCase("FB")]
 		public async Task KeyStatsAsyncTest(string symbol)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Specialized;
+using System.Text.Json;
 
 namespace IEXSharp.Helper
 {
@@ -7,11 +8,36 @@ namespace IEXSharp.Helper
 	{
 		protected readonly string publishableToken;
 		protected readonly string secretToken;
+		static JsonSerializerOptions jsonSerializerOptions;
 
 		protected ExecutorBase(string publishableToken, string secretToken)
 		{
 			this.publishableToken = publishableToken;
 			this.secretToken = secretToken;
+		}
+
+		internal static JsonSerializerOptions JsonSerializerOptions
+		{
+			get
+			{
+				if (jsonSerializerOptions != null)
+					return jsonSerializerOptions;
+				else
+				{
+					jsonSerializerOptions = new JsonSerializerOptions
+					{
+						IgnoreNullValues = true,
+						PropertyNameCaseInsensitive = true,
+					};
+					jsonSerializerOptions.Converters.Add(new DictionaryDatetimeTValueConverter());
+					jsonSerializerOptions.Converters.Add(new Int32Converter());
+					jsonSerializerOptions.Converters.Add(new Int64Converter());
+					jsonSerializerOptions.Converters.Add(new DecimalConverter());
+					jsonSerializerOptions.Converters.Add(new StringConverter());
+					return jsonSerializerOptions;
+				}
+			}
+			private set { }
 		}
 
 		protected static void ValidateAndProcessParams(ref string urlPattern, ref NameValueCollection pathNVC, ref QueryStringBuilder qsb)

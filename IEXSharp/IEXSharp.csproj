@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<VersionPrefix>2.2.0</VersionPrefix>
+		<VersionPrefix>2.4.1</VersionPrefix>
 		<Authors>Victor Lee</Authors>
 		<Company />
 		<Description>IEX Cloud API for C# and other .net languages. Supports SSE streaming</Description>
@@ -27,12 +27,14 @@
 	<!--when prereleasing, embed symbols PDB in main nupkg bc GH Pakages doesn't have its own symbol server-->
 	<PropertyGroup Condition="'$(Configuration)'=='PreRelease'">
 		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 
 	<!--when releasing to NuGet, create a separate snupkg-->
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -43,9 +45,9 @@
 
 	<ItemGroup>
 		<PackageReference Include="LaunchDarkly.EventSource" Version="3.3.2" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<PackageReference Include="Polly" Version="7.2.1" />
-		
+		<PackageReference Include="System.Text.Json" Version="4.7.2" />
+
 		<!--development dependency, which means it is only used during build, the final NuGet package does not have a dependency on SourceLink-->
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 	</ItemGroup>
