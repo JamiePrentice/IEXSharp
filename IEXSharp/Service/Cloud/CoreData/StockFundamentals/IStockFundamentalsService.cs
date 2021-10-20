@@ -10,6 +10,17 @@ namespace IEXSharp.Service.Cloud.CoreData.StockFundamentals
 	public interface IStockFundamentalsService
 	{
 		/// <summary>
+		/// <see cref="https://iexcloud.io/docs/api/#advanced-fundamentals"/>
+		/// Only included with paid subscription plans.
+		/// Financial information is limited for some financial firms.
+		/// </summary>
+		/// <param name="symbol"></param>
+		/// <param name="period"></param>
+		/// <param name="timeSeries"></param>
+		/// <returns></returns>
+		Task<IEXResponse<IEnumerable<AdvancedFundamentalsResponse>>> AdvancedFundamentalsAsync(string symbol, TimeSeriesPeriod period = TimeSeriesPeriod.Quarterly, TimeSeries timeSeries = null);
+
+		/// <summary>
 		/// <see cref="https://iexcloud.io/docs/api/#balance-sheet"/>
 		/// Only included with paid subscription plans.
 		/// Financial information is limited for some financial firms.
@@ -89,6 +100,16 @@ namespace IEXSharp.Service.Cloud.CoreData.StockFundamentals
 		/// <param name="last"></param>
 		/// <returns></returns>
 		Task<IEXResponse<FinancialResponse>> FinancialAsync(string symbol, int last = 1);
+
+		/// <summary>
+		/// <see cref="https://iexcloud.io/docs/api/#financials-as-reported"/>
+		/// As reported financials are pulled directly from the raw SEC filings. Returns raw financial data reported in 10-K and 10-Q filings
+		/// </summary>
+		/// <param name="symbol"></param>
+		/// <param name="filing"></param>
+		/// <param name="timeSeries"></param>
+		/// <returns></returns>
+		Task<IEXResponse<IEnumerable<ReportedFinancialResponse>>> ReportedFinancialsAsync(string symbol, Filing filing = Filing.Quarterly, TimeSeries timeSeries = null);
 
 		/// <summary>
 		/// <see cref="https://iexcloud.io/docs/api/#financials"/>

@@ -18,8 +18,24 @@ namespace IEXSharp.Service.Cloud.CoreData.StockFundamentals
 			this.executor = executor;
 		}
 
-		public async Task<IEXResponse<BalanceSheetResponse>> BalanceSheetAsync(string symbol, Period period = Period.Quarter,
-			int last = 1)
+		public async Task<IEXResponse<IEnumerable<AdvancedFundamentalsResponse>>> AdvancedFundamentalsAsync(string symbol, TimeSeriesPeriod period = TimeSeriesPeriod.Quarterly, TimeSeries timeSeries = null)
+		{
+			const string urlPattern = "time-series/fundamentals/[symbol]/[period]";
+
+			var qsb = new QueryStringBuilder();
+
+			timeSeries?.AddTimeSeriesQueryParams(qsb);
+
+			var pathNvc = new NameValueCollection
+			{
+				{"symbol", symbol},
+				{"period", period.GetDescriptionFromEnum()}
+			};
+
+			return await executor.ExecuteAsync<IEnumerable<AdvancedFundamentalsResponse>>(urlPattern, pathNvc, qsb);
+		}
+
+		public async Task<IEXResponse<BalanceSheetResponse>> BalanceSheetAsync(string symbol, Period period = Period.Quarter, int last = 1)
 		{
 			const string urlPattern = "stock/[symbol]/balance-sheet/[last]";
 
@@ -95,6 +111,23 @@ namespace IEXSharp.Service.Cloud.CoreData.StockFundamentals
 
 		public async Task<IEXResponse<FinancialResponse>> FinancialAsync(string symbol, int last = 1) =>
 			await executor.SymbolLastExecuteAsync<FinancialResponse>("stock/[symbol]/financials/[last]", symbol, last);
+
+		public async Task<IEXResponse<IEnumerable<ReportedFinancialResponse>>> ReportedFinancialsAsync(string symbol, Filing filing = Filing.Quarterly, TimeSeries timeSeries = null)
+		{
+			const string urlPattern = "time-series/reported_financials/[symbol]/[filing]";
+
+			var qsb = new QueryStringBuilder();
+
+			timeSeries?.AddTimeSeriesQueryParams(qsb);
+
+			var pathNvc = new NameValueCollection
+			{
+				{"symbol", symbol},
+				{"filing", filing.GetDescriptionFromEnum()}
+			};
+
+			return await executor.ExecuteAsync<IEnumerable<ReportedFinancialResponse>>(urlPattern, pathNvc, qsb);
+		}
 
 		public async Task<IEXResponse<string>> FinancialFieldAsync(string symbol, string field, int last = 1) =>
 			await executor.SymbolLastFieldExecuteAsync("stock/[symbol]/financials/[last]/[field]", symbol, field, last);

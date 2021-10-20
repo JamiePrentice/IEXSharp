@@ -39,6 +39,13 @@ namespace IEXSharp.Helper
 			{
 				return null;
 			}
+			else if (reader.TokenType == JsonTokenType.StartArray)
+			{
+				using (var doc = JsonDocument.ParseValue(ref reader))
+				{
+					return doc.RootElement.GetRawText();
+				}
+			}
 			else
 			{
 				throw new JsonException();
@@ -47,41 +54,6 @@ namespace IEXSharp.Helper
 
 		public override void Write(Utf8JsonWriter writer, string value,
 			JsonSerializerOptions options) => writer.WriteStringValue(value);
-	}
-
-	/// <summary> Allow both quoted and unquoted numbers on  deserialize. </summary>
-	public class Int32Converter : JsonConverter<int?>
-	{
-		public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			if (reader.TokenType == JsonTokenType.String)
-			{
-				var stringValue = reader.GetString();
-				if (int.TryParse(stringValue, out var value))
-				{
-					return value;
-				}
-				return null;
-			}
-			if (reader.TokenType == JsonTokenType.Number)
-			{
-				return reader.GetInt32();
-			}
-			throw new JsonException();
-		}
-
-		public override void Write(Utf8JsonWriter writer, int? input,
-			JsonSerializerOptions options)
-		{
-			if (input.HasValue)
-			{
-				writer.WriteNumberValue(input.Value);
-			}
-			else
-			{
-				writer.WriteNullValue();
-			}
-		}
 	}
 
 	public class DateTimeConverter : JsonConverter<DateTime?>
@@ -107,104 +79,6 @@ namespace IEXSharp.Helper
 			if (input.HasValue)
 			{
 				writer.WriteStringValue(input.Value);
-			}
-			else
-			{
-				writer.WriteNullValue();
-			}
-		}
-	}
-
-	/// <summary> Allow both quoted and unquoted numbers on  deserialize. </summary>
-	public class Int64Converter : JsonConverter<long?>
-	{
-		public override long? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			if (reader.TokenType == JsonTokenType.String)
-			{
-				var stringValue = reader.GetString();
-				if (long.TryParse(stringValue, out var value))
-				{
-					return value;
-				}
-				return null;
-			}
-			if (reader.TokenType == JsonTokenType.Number)
-			{
-				return reader.GetInt64();
-			}
-			throw new JsonException();
-		}
-
-		public override void Write(Utf8JsonWriter writer, long? input,
-			JsonSerializerOptions options)
-		{
-			if (input.HasValue)
-			{
-				writer.WriteNumberValue(input.Value);
-			}
-			else
-			{
-				writer.WriteNullValue();
-			}
-		}
-	}
-
-	/// <summary> Allow both quoted and unquoted numbers on  deserialize. </summary>
-	public class DecimalConverter : JsonConverter<decimal>
-	{
-		public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			if (reader.TokenType == JsonTokenType.String)
-			{
-				var stringValue = reader.GetString();
-				if (decimal.TryParse(stringValue, out var value))
-				{
-					return value;
-				}
-				throw new JsonException();
-			}
-			if (reader.TokenType == JsonTokenType.Number)
-			{
-				return reader.GetDecimal();
-			}
-			throw new JsonException();
-		}
-
-		public override void Write(Utf8JsonWriter writer, decimal input,
-			JsonSerializerOptions options)
-		{
-			writer.WriteNumberValue(input);
-		}
-	}
-
-	/// <summary> Allow both quoted and unquoted numbers on  deserialize. </summary>
-	public class DecimalNullableConverter : JsonConverter<decimal?>
-	{
-		public override decimal? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			if (reader.TokenType == JsonTokenType.String)
-			{
-				var stringValue = reader.GetString();
-				if (decimal.TryParse(stringValue, out var value))
-				{
-					return value;
-				}
-				return null;
-			}
-			if (reader.TokenType == JsonTokenType.Number)
-			{
-				return reader.GetDecimal();
-			}
-			throw new JsonException();
-		}
-
-		public override void Write(Utf8JsonWriter writer, decimal? input,
-			JsonSerializerOptions options)
-		{
-			if (input.HasValue)
-			{
-				writer.WriteNumberValue(input.Value);
 			}
 			else
 			{

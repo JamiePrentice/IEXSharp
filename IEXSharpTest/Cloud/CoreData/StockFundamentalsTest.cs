@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IEXSharp;
@@ -24,13 +25,41 @@ namespace IEXSharpTest.Cloud.CoreData
 		}
 
 		[Test]
+		[TestCase("BEDU", TimeSeriesPeriod.Annual)]
+		[TestCase("BEDU", TimeSeriesPeriod.Quarterly)]
+		[TestCase("F", TimeSeriesPeriod.Annual)]
+		[TestCase("CCM", TimeSeriesPeriod.Quarterly)]
+		[TestCase("AAPL", TimeSeriesPeriod.Annual)]
+		[TestCase("AAPL", TimeSeriesPeriod.Quarterly)]
+		[TestCase("FB", TimeSeriesPeriod.Quarterly)]
+		[TestCase("BEDU", TimeSeriesPeriod.Annual, 2)]
+		[TestCase("BEDU", TimeSeriesPeriod.Quarterly, 2)]
+		[TestCase("F", TimeSeriesPeriod.Annual, 3)]
+		[TestCase("CCM", TimeSeriesPeriod.Quarterly, 4)]
+		[TestCase("AAPL", TimeSeriesPeriod.Quarterly, 3)]
+		[TestCase("FB", TimeSeriesPeriod.Quarterly, 5)]
+		[TestCase("AAPL", TimeSeriesPeriod.Quarterly, null, "2008-1-1", "2010-1-1")]
+		public async Task AdvancedFundamentalsAsyncTest(string symbol, TimeSeriesPeriod period = TimeSeriesPeriod.Quarterly, int range = 1, DateTime? from = null, DateTime? to = null)
+		{
+			var timeSeries = new TimeSeries(period).SetRange(range).SetDateRange(from, to);
+			var response = await sandBoxClient.StockFundamentals.AdvancedFundamentalsAsync(symbol, period, timeSeries);
+
+			Assert.IsNull(response.ErrorMessage);
+			foreach (var data in response.Data)
+			{
+				Assert.IsNotNull(data);
+				Assert.IsNotNull(data.accountsPayable);
+			}
+		}
+
+
+		[Test]
 		[TestCase("BEDU", Period.Annual, 1)]
 		[TestCase("BEDU", Period.Quarter, 1)]
 		[TestCase("CCM", Period.Quarter, 1)]
 		[TestCase("AAPL", Period.Quarter, 1)]
 		[TestCase("FB", Period.Quarter, 2)]
-		public async Task BalanceSheetAsyncTest(string symbol, Period period = Period.Quarter,
-			int last = 1)
+		public async Task BalanceSheetAsyncTest(string symbol, Period period = Period.Quarter, int last = 1)
 		{
 			var response = await sandBoxClient.StockFundamentals.BalanceSheetAsync(symbol, period, last);
 			Assert.IsNull(response.ErrorMessage);
@@ -131,6 +160,30 @@ namespace IEXSharpTest.Cloud.CoreData
 			Assert.IsNull(response.ErrorMessage);
 			Assert.IsNotNull(response.Data);
 			Assert.GreaterOrEqual(response.Data.financials.Count, 1);
+		}
+
+		public static List<TestCaseData> ReportedFinancialsTestCaseSourceData()
+		{
+			return new List<TestCaseData>{
+				new TestCaseData("AAPL", Filing.Quarterly, null),
+				new TestCaseData("AAPL", Filing.Quarterly, new TimeSeries(TimeSeriesPeriod.Quarterly).SetLast(2)),
+				new TestCaseData("AAPL", Filing.Quarterly, new TimeSeries(TimeSeriesPeriod.Annual).SetLast(2)),
+				new TestCaseData("AAPL", Filing.Quarterly, new TimeSeries(TimeSeriesPeriod.Quarterly).SetDateRange(new DateTime(2019,1,1), new DateTime(2021,1,1)))
+			};
+		}
+
+		[Test]
+		[TestCaseSource("ReportedFinancialsTestCaseSourceData")]
+		public async Task ReportedFinancialsTest(string symbol, Filing filing, TimeSeries timeSeries = null)
+		{
+			var response = await sandBoxClient.StockFundamentals.ReportedFinancialsAsync(symbol, filing, timeSeries);
+
+			Assert.IsNull(response.ErrorMessage);
+			foreach (var data in response.Data)
+			{
+				Assert.IsNotNull(data);
+				Assert.IsNotNull(data.AccountsPayableCurrent);
+			}
 		}
 
 		[Test]

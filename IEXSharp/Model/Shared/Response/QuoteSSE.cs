@@ -53,7 +53,7 @@ namespace IEXSharp.Model.Shared.Response
 		public decimal? extendedChangePercent { get; set; }
 		public long? extendedPriceTime { get; set; }
 		public decimal? previousClose { get; set; }
-		public long? previousVolume { get; set; }
+		public decimal? previousVolume { get; set; }
 		public decimal? change { get; set; }
 		public decimal? changePercent { get; set; }
 		public long? volume { get; set; }
@@ -76,6 +76,6 @@ namespace IEXSharp.Model.Shared.Response
 		public long? lastTradeTime { get; set; }
 
 		public override string ToString() =>
-			$"{symbol},{latestTime},{latestPrice},{latestVolume}";
+			$"{latestTime}:{symbol},{latestPrice},{latestVolume}";
 	}
 }
